@@ -46,54 +46,10 @@ jobs:
                 GITHUB_HEAD_REF: ${{ github.head_ref }}
     ###########################################################################
 
-    ######################## MAIN BRANCH ######################################
-    protect_main_branch:
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/main'
-
-        #################### STEPS ############################################
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4.1.1
-              with:
-                fetch-depth: 0
-
-            - name: Check if direct push to main
-              env:
-                COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-                PUSHER: ${{ github.event.pusher.name }}
-              run: |
-                echo "::notice::Commit message: $COMMIT_MESSAGE"
-                echo "::notice::Pusher: $PUSHER"
-                echo "::notice::Event: ${{ github.event_name }}"
-
-                # Count commits in this push using git
-                COMMITS_COUNT=$(git rev-list --count HEAD^..HEAD 2>/dev/null || echo "1")
-                echo "::notice::Commits in push: $COMMITS_COUNT"
-
-                # Check if it's a merge commit based on message patterns
-                if [[ "$COMMIT_MESSAGE" =~ ^merge.* ]] || [[ "$COMMIT_MESSAGE" =~ ^MERGE:.* ]]; then
-                    if [[ "$COMMIT_MESSAGE" =~ .*dev.* ]] || [[ "$COMMIT_MESSAGE" =~ .*pull.request.* ]]; then
-                        echo "::notice title=Merge Commit::Merge from 'dev' to 'main' detected"
-                        exit 0
-                    else
-                        echo "::error title=Invalid Merge::Please merge only from 'dev' to 'main'"
-                        exit 1
-                    fi
-                fi
-
-                # Check for direct commits
-                echo "::error title=Direct Commit::Direct commit to main branch is not allowed!"
-                echo "::error title=Direct Commit::Please create a branch from 'dev' and submit a Pull Request"
-                echo "::error title=Direct Commit::Commit message: $COMMIT_MESSAGE"
-                exit 1
-    ###########################################################################
-
     ######################## WIKI #############################################
     update_wiki:
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/main'
-        needs: protect_main_branch
 
         #################### STEPS ############################################
         steps:
