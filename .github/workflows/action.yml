@@ -59,26 +59,14 @@ jobs:
                   fetch-depth: 0
                   ref: main
 
-            - name: Get changed files
-              id: changed_files
-              run: |
-                  {
-                    echo 'files<<EOF'
-                    git diff --name-only HEAD~1 HEAD | grep *.md || true
-                    echo 'EOF'
-                  } >> $GITHUB_OUTPUT
-
             - name: Generate wiki files
-              if: steps.changed_files.outputs.files != ''
               run: .github/scripts/generate_wiki
 
             - name: Install GitHub CLI
-              if: steps.changed_files.outputs.files != ''
               run: |
                   sudo apt update
                   sudo apt install -y gh
             - name: Set up Wiki
-              if: steps.changed_files.outputs.files != ''
               uses: Andrew-Chen-Wang/github-wiki-action@v5.0.3
     ###########################################################################
 ###############################################################################
