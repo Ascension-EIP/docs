@@ -1,0 +1,129 @@
+############################ CONFIGURATION ####################################
+name: ascension-docs
+
+on: [push, pull_request]
+
+env:
+    GITHUB_ACTIONS: true
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref_name }}
+    cancel-in-progress: true
+###############################################################################
+
+
+
+############################ JOBS #############################################
+jobs:
+
+    ######################## MAIN BRANCH ######################################
+    protect_main_branch:
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main'
+
+        #################### STEPS ############################################
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4.1.1
+              with:
+                fetch-depth: 0
+
+            - name: Check if direct push to main
+              env:
+                COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+                PUSHER: ${{ github.event.pusher.name }}
+              run: |
+                echo "::notice::Commit message: $COMMIT_MESSAGE"
+                echo "::notice::Pusher: $PUSHER"
+                echo "::notice::Event: ${{ github.event_name }}"
+
+                # Count commits in this push using git
+                COMMITS_COUNT=$(git rev-list --count HEAD^..HEAD 2>/dev/null || echo "1")
+                echo "::notice::Commits in push: $COMMITS_COUNT"
+
+                # Check if it's a merge commit based on message patterns
+                if [[ "$COMMIT_MESSAGE" =~ ^merge.* ]] || [[ "$COMMIT_MESSAGE" =~ ^MERGE:.* ]]; then
+                    if [[ "$COMMIT_MESSAGE" =~ .*dev.* ]] || [[ "$COMMIT_MESSAGE" =~ .*pull.request.* ]]; then
+                        echo "::notice title=Merge Commit::Merge from 'dev' to 'main' detected"
+                        exit 0
+                    else
+                        echo "::error title=Invalid Merge::Please merge only from 'dev' to 'main'"
+                        exit 1
+                    fi
+                fi
+
+                # Check for direct commits
+                echo "::error title=Direct Commit::Direct commit to main branch is not allowed!"
+                echo "::error title=Direct Commit::Please create a branch from 'dev' and submit a Pull Request"
+                echo "::error title=Direct Commit::Commit message: $COMMIT_MESSAGE"
+                exit 1
+    ###########################################################################
+
+
+    ######################## COMMIT & BRANCH ##################################
+    check_commit_and_branch:
+        runs-on: ubuntu-latest
+        needs: protect_main_branch
+
+        #################### STEPS ############################################
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4.1.1
+              with:
+                fetch-depth: 0
+
+            - name: Launch commit checker
+              run: |
+                COMMIT_NAME=$(git log --format="%s" -1)
+                .github/scripts/check_commit "$COMMIT_NAME"
+
+            - name: Launch branch checker
+              run: |
+                if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+                    BRANCH_NAME="${GITHUB_HEAD_REF}"
+                else
+                    BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+                fi
+                echo "Branch detected: $BRANCH_NAME"
+                .github/scripts/check_branch "$BRANCH_NAME"
+              env:
+                GITHUB_HEAD_REF: ${{ github.head_ref }}
+    ###########################################################################
+
+    ######################## WIKI #############################################
+    update_wiki:
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main'
+        needs: generate_documentation_and_release
+
+        #################### STEPS ############################################
+        steps:
+            - name: Checkout main repo
+              uses: actions/checkout@v4.1.1
+              with:
+                  fetch-depth: 0
+                  ref: main
+
+            - name: Get changed files
+              id: changed_files
+              run: |
+                  {
+                    echo 'files<<EOF'
+                    git diff --name-only HEAD~1 HEAD | grep *.md || true
+                    echo 'EOF'
+                  } >> $GITHUB_OUTPUT
+
+            - name: Generate wiki files
+              if: steps.changed_files.outputs.files != ''
+              run: .github/scripts/generate_wiki
+
+            - name: Install GitHub CLI
+              if: steps.changed_files.outputs.files != ''
+              run: |
+                  sudo apt update
+                  sudo apt install -y gh
+            - name: Set up Wiki
+              if: steps.changed_files.outputs.files != ''
+              uses: Andrew-Chen-Wang/github-wiki-action@v5.0.3
+    ###########################################################################
+###############################################################################
