@@ -94,7 +94,7 @@ jobs:
     update_wiki:
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/main'
-        needs: generate_documentation_and_release
+        needs: check_commit_and_branch
 
         #################### STEPS ############################################
         steps:
