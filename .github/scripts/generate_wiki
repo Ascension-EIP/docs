@@ -21,6 +21,8 @@ docs_files = []
 for root, dirs, files in os.walk(DOCS_DIR):
     if WIKI_DIR in dirs:
         dirs.remove(WIKI_DIR)
+    if ".git" in dirs:
+        dirs.remove(".git")
     for file in files:
         if file in SPECIAL_FILES:
             continue
