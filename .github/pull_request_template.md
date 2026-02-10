@@ -2,7 +2,7 @@ _*All these fields need to be filled before submitting the PR (except Screenshot
 
 ---
 
-## Title
+### Title
 merge: "_your_branch_" into "dev"
 
 ### Description
