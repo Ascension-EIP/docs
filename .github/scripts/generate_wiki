@@ -18,7 +18,9 @@ for src, dst in SPECIAL_FILES.items():
         shutil.copy(src, os.path.join(WIKI_DIR, "".join(dst)))
 
 docs_files = []
-for root, _, files in os.walk(DOCS_DIR):
+for root, dirs, files in os.walk(DOCS_DIR):
+    if WIKI_DIR in dirs:
+        dirs.remove(WIKI_DIR)
     for file in files:
         if file in SPECIAL_FILES:
             continue
