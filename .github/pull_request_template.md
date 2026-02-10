@@ -3,7 +3,7 @@ _*All these fields need to be filled before submitting the PR (except Screenshot
 ---
 
 ### Title
-merge: "_your_branch_" into "dev"
+merge: "_your_branch_" into "_final_branch_"
 
 ### Description
 _Add here your description_
