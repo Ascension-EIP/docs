@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+import os
+import shutil
+
+
+
+DOCS_DIR = "."
+WIKI_DIR = "wiki"
+SPECIAL_FILES = {
+    "README.md": ["Home", ".md"],
+    "CONTRIBUTING.md": ["HOW-TO-CONTRIBUTE", ".md"],
+}
+
+os.makedirs(WIKI_DIR, exist_ok=True)
+
+for src, dst in SPECIAL_FILES.items():
+    if os.path.exists(src):
+        shutil.copy(src, os.path.join(WIKI_DIR, "".join(dst)))
+
+docs_files = []
+for root, _, files in os.walk(DOCS_DIR):
+    for file in files:
+        if file in SPECIAL_FILES:
+            continue
+        src_path = os.path.join(root, file)
+        docs_files.append(src_path)
+        if file.endswith(".md"):
+            new_name = file.replace("_", "-")
+            dst_path = os.path.join(WIKI_DIR, new_name)
+        else:
+            dst_path = os.path.join(WIKI_DIR, file)
+        shutil.copy(src_path, dst_path)
+
+for wiki_file in os.listdir(WIKI_DIR):
+    print(f"Processing {wiki_file}...")
+    wiki_path = os.path.join(WIKI_DIR, wiki_file)
+    if os.path.isfile(wiki_path) and wiki_file.endswith(".md"):
+        with open(wiki_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        for src, dst in SPECIAL_FILES.items():
+            content = content.replace(src, dst[0])
+
+        for src_path in docs_files:
+            base = os.path.basename(src_path)
+            simple_name = base.replace("_", "-").replace(".md", "")
+            content = content.replace(src_path, simple_name)
+            content = content.replace(base, simple_name)
+            #print(f"  Replaced links for {base} or {src_path} with {simple_name}")
+
+        with open(wiki_path, "w", encoding="utf-8") as f:
+            f.write(content)
+
+print(f"Wiki generated in {WIKI_DIR} successfully!")
