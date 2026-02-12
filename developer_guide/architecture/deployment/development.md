@@ -1,3 +1,9 @@
+> **Last updated:** 12th February 2026  
+> **Version:** 1.0  
+> **Authors:** Gianni TUERO  
+> **Status:** Done
+> {.is-success}
+
 # Development Environment Setup
 
 ## Overview
@@ -40,6 +46,7 @@ graph TB
 ### Required Software
 
 1. **Docker Desktop** (v20.10+)
+
    ```bash
    # Install on macOS
    brew install --cask docker
@@ -54,12 +61,14 @@ graph TB
    - Linux: `sudo apt-get install docker-compose-plugin`
 
 3. **Rust Toolchain** (1.75+)
+
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
    rustup default stable
    ```
 
 4. **Flutter SDK** (3.16+)
+
    ```bash
    # macOS
    brew install flutter
@@ -68,6 +77,7 @@ graph TB
    ```
 
 5. **Python** (3.10+)
+
    ```bash
    # macOS
    brew install python@3.11
@@ -217,6 +227,7 @@ docker-compose up -d
 ```
 
 This launches:
+
 - PostgreSQL (port 5432)
 - Redis (port 6379)
 - MinIO (port 9000 for API, 9001 for UI)
@@ -228,6 +239,7 @@ docker-compose ps
 ```
 
 Expected output:
+
 ```
 NAME                SERVICE             STATUS
 ascension-db-1      db                  running
@@ -297,6 +309,7 @@ python scripts/download_models.py
 ```
 
 This downloads:
+
 - MediaPipe Pose model (~25MB)
 - Hold detection CNN weights (~150MB)
 
@@ -360,7 +373,7 @@ flutter run -d <device_id>
 This file orchestrates all services from their respective submodules:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL Database
@@ -406,8 +419,8 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
-      - "9000:9000"  # API
-      - "9001:9001"  # Web UI
+      - "9000:9000" # API
+      - "9001:9001" # Web UI
     volumes:
       - minio_data:/data
     healthcheck:
@@ -698,6 +711,7 @@ SUBSCRIBE analysis:completed:*
 Open browser: http://localhost:9001
 
 Login:
+
 - Username: `minioadmin`
 - Password: `minioadmin`
 
@@ -792,6 +806,7 @@ docker-compose exec minio mc ls myminio/
 **Issue**: Connection refused
 
 **Fix**: Update API endpoint based on platform:
+
 - **iOS Simulator**: Use `http://127.0.0.1:8080` or `http://localhost:8080`
 - **Android Emulator**: Use `http://10.0.2.2:8080`
 - **Physical Device**: Use computer's local network IP (e.g., `http://192.168.1.100:8080`)
@@ -803,12 +818,14 @@ docker-compose exec minio mc ls myminio/
 For faster iteration during development:
 
 1. **Hot Reload for Rust** (using cargo-watch):
+
    ```bash
    cargo install cargo-watch
    cargo watch -x run
    ```
 
 2. **Python Auto-reload**:
+
    ```bash
    pip install watchdog
    watchmedo auto-restart --patterns="*.py" --recursive python src/worker.py

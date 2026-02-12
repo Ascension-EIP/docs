@@ -1,3 +1,9 @@
+> **Last updated:** 12th February 2026  
+> **Version:** 1.0  
+> **Authors:** Gianni TUERO  
+> **Status:** Done
+> {.is-success}
+
 # Staging Environment Setup
 
 ## Overview
@@ -59,6 +65,7 @@ graph TB
 ## Infrastructure Requirements
 
 ### VPS-1: API Server
+
 - **CPU**: 2-4 vCPUs
 - **RAM**: 4-8 GB
 - **Storage**: 50 GB SSD
@@ -67,6 +74,7 @@ graph TB
 - **Estimated Cost**: $20-40/month
 
 ### VPS-2: Database Server
+
 - **CPU**: 2 vCPUs
 - **RAM**: 4 GB (minimum for PostgreSQL)
 - **Storage**: 100 GB SSD
@@ -75,9 +83,11 @@ graph TB
 - **Estimated Cost**: $20-30/month
 
 ### GPU Machine (AI Workers)
+
 Two options:
 
 #### Option A: Cloud GPU Instance
+
 - **Instance**: AWS EC2 g4dn.xlarge (or equivalent)
 - **GPU**: NVIDIA T4 (16GB)
 - **CPU**: 4 vCPUs
@@ -86,6 +96,7 @@ Two options:
 - **Cost Optimization**: Use Spot Instances (~$120/month)
 
 #### Option B: On-Premise GPU Machine
+
 - **PC**: Your Zephyrus G14 or similar
 - **GPU**: RTX 3060+ or equivalent
 - **Connection**: Stable internet connection
@@ -93,6 +104,7 @@ Two options:
 - **Trade-off**: Must maintain uptime, potential home network limitations
 
 ### Object Storage
+
 - **Service**: AWS S3, Backblaze B2, or Cloudflare R2
 - **Storage**: ~500 GB
 - **Requests**: ~100k/month
@@ -127,6 +139,7 @@ graph LR
 ### Firewall Rules
 
 **VPS-1 (API Server)**:
+
 ```bash
 # Allow SSH (restrict to your IP)
 sudo ufw allow from YOUR_IP to any port 22
@@ -146,6 +159,7 @@ sudo ufw enable
 ```
 
 **VPS-2 (Database)**:
+
 ```bash
 # Allow SSH (restrict to your IP)
 sudo ufw allow from YOUR_IP to any port 22
@@ -209,7 +223,7 @@ Log out and back in for group changes to take effect.
 Create `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -223,7 +237,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups:/backups  # For database backups
+      - ./backups:/backups # For database backups
     restart: always
     command:
       - "postgres"
@@ -328,7 +342,7 @@ ENVIRONMENT=staging
 Create `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   redis:
@@ -342,7 +356,7 @@ services:
     restart: always
 
   api:
-    image: ascension/api:staging  # Build and push to registry
+    image: ascension/api:staging # Build and push to registry
     container_name: ascension-api
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -558,6 +572,7 @@ sudo systemctl start ascension-worker
 #### Option B: On-Premise GPU Machine (Zephyrus G14)
 
 **Requirements**:
+
 - Stable internet connection
 - Port forwarding or VPN to reach VPS instances
 - Power backup (UPS recommended)
@@ -761,7 +776,7 @@ Update `docker-compose.yml` to run multiple API instances:
 api:
   # ... existing config ...
   deploy:
-    replicas: 2  # Run 2 instances
+    replicas: 2 # Run 2 instances
 ```
 
 Add Nginx upstream:
@@ -843,20 +858,20 @@ k6 run load-test.js
 Example `load-test.js`:
 
 ```javascript
-import http from 'k6/http';
-import { check } from 'k6';
+import http from "k6/http";
+import { check } from "k6";
 
 export let options = {
   stages: [
-    { duration: '2m', target: 100 },  // Ramp up to 100 users
-    { duration: '5m', target: 100 },  // Stay at 100 users
-    { duration: '2m', target: 0 },    // Ramp down
+    { duration: "2m", target: 100 }, // Ramp up to 100 users
+    { duration: "5m", target: 100 }, // Stay at 100 users
+    { duration: "2m", target: 0 }, // Ramp down
   ],
 };
 
-export default function() {
-  let res = http.get('https://staging.ascension.app/health');
-  check(res, { 'status is 200': (r) => r.status === 200 });
+export default function () {
+  let res = http.get("https://staging.ascension.app/health");
+  check(res, { "status is 200": (r) => r.status === 200 });
 }
 ```
 

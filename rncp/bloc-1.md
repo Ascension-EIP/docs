@@ -2,6 +2,7 @@
 > **Version:** 1.0  
 > **Authors:** Nicolas  
 > **Status:** In Progress
+> {.is-warning}
 
 Bloc 1 :
 
@@ -27,8 +28,8 @@ Bloc 1 :
 - Le candidat est capable de vulgariser à l'oral de manière synthétique son étude prospective des voies d'évolution et de
   migration [C5]
 
-
 ## C1
+
 L'identification du besoin est née d'une problématique concrète rencontrée
 au sein de notre équipe projet, composée majoritairement
 de pratiquants réguliers d'escalade. Lors de nos sessions en salle, nous avons
@@ -37,7 +38,9 @@ objectivement notre propre technique pendant la grimpe. Cette observation empiri
 nous a conduits à échanger avec d'autres grimpeurs et
 à identifier un besoin plus large : l'accès limité à un feedback technique précis,
 généralement réservé aux grimpeurs bénéficiant d'un coach personnel.
---------------------------------------------------------------------------------------------------
+
+---
+
 L'application respecte les normes WCAG 2.1 (Web Content Accessibility Guidelines) niveau AA, notamment :
 
 -Contraste des couleurs : ratio minimum de 4.5:1 pour la lisibilité des textes et des résultats d'analyse
