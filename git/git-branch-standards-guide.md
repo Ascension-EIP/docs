@@ -1,9 +1,9 @@
 ---
 title: git-branch-standards-guide
-description: 
+description:
 published: true
 date: 2026-02-11T15:48:35.576Z
-tags: 
+tags:
 editor: markdown
 dateCreated: 2026-02-11T14:56:26.501Z
 ---
@@ -12,6 +12,7 @@ dateCreated: 2026-02-11T14:56:26.501Z
 > **Version:** 1.0  
 > **Authors:** Nicolas  
 > **Status:** In Progress (the specified CI/CD must be modified)
+> {.is-warning}
 
 ---
 

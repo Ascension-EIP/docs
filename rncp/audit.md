@@ -2,6 +2,7 @@
 > **Version:** 1.0  
 > **Authors:** Lou PELLEGRINO  
 > **Status:** In Progress (to finish and translate)
+> {.is-warning}
 
 ---
 

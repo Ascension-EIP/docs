@@ -1,3 +1,9 @@
+> **Last updated:** 12th February 2026  
+> **Version:** 1.0  
+> **Authors:** Gianni TUERO  
+> **Status:** Done
+> {.is-success}
+
 # System Overview
 
 ## Philosophy
@@ -9,6 +15,7 @@ Ascension's architecture is built on the principle of **separation of concerns**
 ### 1. Event-Driven Architecture
 
 The system uses an event-driven pattern where:
+
 - User actions trigger events
 - Events are published to a message queue
 - Workers consume events asynchronously
@@ -16,6 +23,7 @@ The system uses an event-driven pattern where:
 - UI updates via WebSocket notifications
 
 **Benefits**:
+
 - Non-blocking user experience
 - Natural load distribution
 - Easy to add new event handlers
@@ -26,12 +34,14 @@ The system uses an event-driven pattern where:
 Commands (write operations) and Queries (read operations) follow different paths:
 
 **Commands** (e.g., "Analyze this video"):
+
 - API validates request
 - Job published to queue
 - Worker processes asynchronously
 - Result stored in database
 
 **Queries** (e.g., "Get my analysis"):
+
 - API retrieves from database
 - Response cached in Redis
 - Direct to client
@@ -41,6 +51,7 @@ Commands (write operations) and Queries (read operations) follow different paths
 Instead of server-side video encoding, we return mathematical data:
 
 **Traditional Approach** (Avoided):
+
 ```
 Video (50MB) → AI Processing → Enhanced Video (50MB) → Client
 Total bandwidth: 100MB
@@ -48,6 +59,7 @@ Processing time: 45s + encoding (30s)
 ```
 
 **Our Approach**:
+
 ```
 Video (50MB) → AI Processing → JSON (50KB) → Client renders overlay
 Total bandwidth: 50MB
@@ -55,6 +67,7 @@ Processing time: 45s (no encoding)
 ```
 
 **Savings per video**:
+
 - Bandwidth: 50MB saved (50% reduction)
 - Processing: 30s saved
 - Storage: No need to keep processed videos
@@ -64,6 +77,7 @@ Processing time: 45s (no encoding)
 ### Layer 1: Client (Flutter Mobile App)
 
 **Responsibilities**:
+
 - User interface and interaction
 - Local video capture and caching
 - Direct upload to object storage
@@ -71,12 +85,14 @@ Processing time: 45s (no encoding)
 - WebSocket connection for real-time updates
 
 **Key Technologies**:
+
 - Flutter SDK
 - CustomPainter for overlay rendering
 - WebSocket client
 - HTTP/2 client
 
 **Data Flow**:
+
 1. Capture or select video
 2. Keep video in local cache
 3. Request presigned upload URL from API
@@ -89,6 +105,7 @@ Processing time: 45s (no encoding)
 ### Layer 2: API Gateway (Rust)
 
 **Responsibilities**:
+
 - Authentication and authorization
 - Request validation
 - Presigned URL generation
@@ -97,17 +114,20 @@ Processing time: 45s (no encoding)
 - Result delivery
 
 **Key Technologies**:
+
 - Rust (Axum or Actix-web framework)
 - JWT for authentication
 - SQLx for database access
 - Redis client for pub/sub
 
 **NOT Responsible For**:
+
 - Video processing (too heavy)
 - Video storage (handled by object storage)
 - AI inference (delegated to workers)
 
 **API Endpoints**:
+
 ```
 POST   /api/v1/auth/register
 POST   /api/v1/auth/login
@@ -120,12 +140,14 @@ WebSocket /api/v1/ws                        # Real-time notifications
 ### Layer 3: Message Queue (Redis)
 
 **Responsibilities**:
+
 - Job queue management
 - Pub/Sub for events
 - Session caching
 - Rate limiting data
 
 **Queue Pattern**:
+
 ```
 Queue: analysis_jobs
 Structure: {
@@ -141,6 +163,7 @@ Structure: {
 ```
 
 **Event Channels**:
+
 - `analysis:started:{job_id}`
 - `analysis:progress:{job_id}` (optional: for progress updates)
 - `analysis:completed:{job_id}`
@@ -149,6 +172,7 @@ Structure: {
 ### Layer 4: AI Workers (Python)
 
 **Responsibilities**:
+
 - Consume jobs from queue
 - Download video from object storage
 - Run AI inference
@@ -177,6 +201,7 @@ Structure: {
    - Output: JSON hold positions
 
 **Worker Architecture**:
+
 ```python
 class AnalysisWorker:
     def __init__(self):
@@ -264,6 +289,7 @@ CREATE TABLE analysis_metrics (
 ```
 
 **Indexes**:
+
 ```sql
 CREATE INDEX idx_videos_user_id ON videos(user_id);
 CREATE INDEX idx_videos_expires_at ON videos(expires_at) WHERE saved = FALSE;
@@ -274,6 +300,7 @@ CREATE INDEX idx_analyses_status ON analyses(status);
 #### MinIO/S3 (Object Storage)
 
 **Bucket Structure**:
+
 ```
 ascension-videos/
 ├── uploads/
@@ -287,6 +314,7 @@ ascension-videos/
 ```
 
 **Lifecycle Policies**:
+
 ```json
 {
   "Rules": [
@@ -388,26 +416,31 @@ sequenceDiagram
 ## Fault Tolerance
 
 ### API Server Failure
+
 - **Impact**: New requests fail
 - **Mitigation**: Multiple API instances behind load balancer
 - **Recovery**: Automatic (load balancer detects failure)
 
 ### AI Worker Failure
+
 - **Impact**: Job remains in queue
 - **Mitigation**: Job timeout + dead letter queue
 - **Recovery**: Job reassigned to healthy worker
 
 ### Database Failure
+
 - **Impact**: Cannot write/read results
 - **Mitigation**: Database replica + automated failover
 - **Recovery**: Promote replica to primary
 
 ### Object Storage Failure
+
 - **Impact**: Cannot upload/download videos
 - **Mitigation**: Multi-region replication (production)
 - **Recovery**: Automatic (S3 SLA: 99.99%)
 
 ### Redis Failure
+
 - **Impact**: Queue and cache unavailable
 - **Mitigation**: Redis Sentinel for auto-failover
 - **Recovery**: Promote replica, requeue in-flight jobs
@@ -445,23 +478,27 @@ API → DB: Fetch user permissions
 ### Key Metrics
 
 **API**:
+
 - Request rate (requests/second)
 - Error rate (%)
 - Response time (p50, p95, p99)
 - Active WebSocket connections
 
 **AI Workers**:
+
 - Queue depth
 - Processing time per video
 - GPU utilization (%)
 - Failed jobs count
 
 **Database**:
+
 - Query time (p50, p95)
 - Connection pool usage
 - Cache hit rate
 
 **Object Storage**:
+
 - Upload success rate
 - Download bandwidth
 - Storage used (GB)
@@ -524,9 +561,11 @@ Total: ~$12,550/month ($0.125 per user)
 ### Bottleneck Analysis
 
 **Current Bottleneck**: GPU compute time
+
 - **Solution**: Add more workers or upgrade GPUs
 
 **Future Bottleneck** (at scale): Database writes
+
 - **Solution**: Write batching, read replicas
 
 ## Technology Choices Rationale
@@ -534,11 +573,13 @@ Total: ~$12,550/month ($0.125 per user)
 ### Why Rust over Node.js/Go?
 
 **Vs Node.js**:
+
 - No garbage collection pauses
 - Memory safety without runtime overhead
 - Better concurrency model (async/await without event loop)
 
 **Vs Go**:
+
 - More expressive type system
 - Better memory safety guarantees
 - Growing web ecosystem (Axum, Actix)

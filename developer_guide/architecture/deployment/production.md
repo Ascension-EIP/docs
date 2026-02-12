@@ -1,3 +1,9 @@
+> **Last updated:** 12th February 2026  
+> **Version:** 1.0  
+> **Authors:** Gianni TUERO  
+> **Status:** Done
+> {.is-success}
+
 # Production Environment Setup
 
 ## Overview
@@ -999,6 +1005,7 @@ aws ecs run-task \
 ### Per-Service Pipelines
 
 **server/.github/workflows/ci.yml** (API repo):
+
 ```yaml
 name: Server CI
 
@@ -1021,6 +1028,7 @@ jobs:
 ```
 
 **ai/.github/workflows/ci.yml** (AI worker repo):
+
 ```yaml
 name: AI Worker CI
 
@@ -1035,7 +1043,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - run: pip install -r requirements.txt
       - run: pytest
 ```
@@ -1052,7 +1060,7 @@ name: Deploy to Production
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build-and-deploy:
@@ -1060,7 +1068,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          submodules: recursive  # Important: fetch all submodules
+          submodules: recursive # Important: fetch all submodules
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -1110,26 +1118,31 @@ jobs:
 ### Backup Strategy
 
 **Database**:
+
 - Automated daily snapshots (7-day retention)
 - Point-in-time recovery enabled
 - Cross-region replication for critical data
 
 **S3**:
+
 - Versioning enabled
 - Cross-region replication
 - MFA delete protection
 
 **Configuration**:
+
 - Terraform state in S3 with versioning
 - Infrastructure as Code in Git
 
 ### Recovery Procedures
 
 **Database Failure**:
+
 1. RDS automatic failover to standby (< 2 minutes)
 2. Or restore from snapshot
 
 **Region Failure**:
+
 1. Update DNS to point to secondary region
 2. Launch infrastructure in DR region using Terraform
 3. Restore database from cross-region replica

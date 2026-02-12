@@ -2,6 +2,7 @@
 > **Version:** 1.0  
 > **Authors:** Nicolas  
 > **Status:** Done
+> {.is-success}
 
 ---
 

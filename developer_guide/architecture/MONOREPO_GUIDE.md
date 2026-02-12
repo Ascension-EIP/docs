@@ -1,3 +1,9 @@
+> **Last updated:** 12th February 2026  
+> **Version:** 1.0  
+> **Authors:** Gianni TUERO  
+> **Status:** Done
+> {.is-success}
+
 # Ascension Monorepo Architecture Guide
 
 ## Overview
@@ -167,13 +173,13 @@ The main repository's `docker-compose.yml` references all submodules:
 services:
   api:
     build:
-      context: ./server      # References server submodule
+      context: ./server # References server submodule
       dockerfile: Dockerfile
     # ...
 
   worker:
     build:
-      context: ./ai          # References ai submodule
+      context: ./ai # References ai submodule
       dockerfile: Dockerfile
     # ...
 ```
@@ -195,6 +201,7 @@ docker-compose ps
 Each submodule has its own CI:
 
 **server/.github/workflows/ci.yml**:
+
 ```yaml
 name: Server CI
 on:
@@ -212,6 +219,7 @@ jobs:
 ```
 
 **ai/.github/workflows/ci.yml**:
+
 ```yaml
 name: AI Worker CI
 on:
@@ -229,6 +237,7 @@ jobs:
 ### Main Repo Orchestration
 
 **Ascension/.github/workflows/deploy.yml**:
+
 ```yaml
 name: Deploy All Services
 on:
@@ -240,7 +249,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          submodules: recursive  # Fetch all submodules
+          submodules: recursive # Fetch all submodules
 
       - name: Build API
         run: |

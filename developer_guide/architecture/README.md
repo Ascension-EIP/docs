@@ -1,3 +1,9 @@
+> **Last updated:** 12th February 2026  
+> **Version:** 1.0  
+> **Authors:** Gianni TUERO  
+> **Status:** Done
+> {.is-success}
+
 # Ascension Architecture Documentation
 
 ## Overview
@@ -65,21 +71,25 @@ graph TD
 ## Key Features
 
 ### Intelligent Upload System
+
 - **Presigned URLs**: Direct upload to object storage bypassing API server
 - **No API Bottleneck**: API server only coordinates, doesn't handle video data
 - **Security**: Time-limited, scoped access to storage
 
 ### Asynchronous Processing
+
 - **Message Queue**: Redis-based job distribution
 - **Worker Pool**: Python workers consume jobs independently
 - **Non-blocking**: Users can continue using the app during processing
 
 ### Lightweight Results
+
 - **JSON-only Response**: ~50KB instead of 50MB video
 - **Client-side Rendering**: Flutter CustomPainter overlays analysis on local video
 - **Cost Effective**: Minimal data egress from servers
 
 ### Lifecycle Management
+
 - **Auto-deletion**: Videos deleted after 24h unless explicitly saved
 - **User Control**: Option to persist videos for sharing
 - **Privacy First**: Temporary storage by default
@@ -138,6 +148,7 @@ Ascension/                      # Main repository (orchestration)
 ```
 
 **Benefits**:
+
 - Each service has its own repository and version control
 - Independent CI/CD pipelines per service
 - Teams can work in parallel
@@ -146,12 +157,14 @@ Ascension/                      # Main repository (orchestration)
 ## Technology Stack
 
 ### Client Layer
+
 - **Framework**: Flutter
 - **State Management**: TBD (Bloc/Riverpod recommended)
 - **Video Rendering**: CustomPainter for analysis overlay
 - **Networking**: HTTP/2 + WebSocket
 
 ### API Gateway
+
 - **Language**: Rust
 - **Framework**: Axum or Actix-web
 - **Features**:
@@ -161,6 +174,7 @@ Ascension/                      # Main repository (orchestration)
   - Request validation
 
 ### AI Processing
+
 - **Language**: Python 3.10+
 - **ML Frameworks**: PyTorch, MediaPipe/OpenPose
 - **Services**:
@@ -169,6 +183,7 @@ Ascension/                      # Main repository (orchestration)
   - Hold Recognition (CNN-based)
 
 ### Data Layer
+
 - **Database**: PostgreSQL 15+
 - **Object Storage**: MinIO (dev), AWS S3 (prod)
 - **Message Queue**: Redis 7+
@@ -177,17 +192,20 @@ Ascension/                      # Main repository (orchestration)
 ## Deployment Phases
 
 ### Phase 1: Development (Single Machine)
+
 - All services in Docker Compose
 - Local MinIO for storage
 - Suitable for: Development, testing, prototyping
 
 ### Phase 2: Staging (Multi-Container)
+
 - API and DB on VPS
 - AI workers on GPU-enabled machine (local or cloud)
 - Cloud storage (S3 or equivalent)
 - Suitable for: Beta testing, performance validation
 
 ### Phase 3: Production (Distributed)
+
 - API on managed container service
 - Managed database (AWS RDS, Azure Database)
 - Managed cache (AWS ElastiCache)
@@ -205,30 +223,35 @@ Ascension/                      # Main repository (orchestration)
 ## Design Decisions
 
 ### Why Rust for API?
+
 - Memory safety without garbage collection
 - Exceptional performance for concurrent requests
 - Strong typing prevents runtime errors
 - Active ecosystem (Axum, Actix-web, SQLx)
 
 ### Why Python for AI?
+
 - Industry standard for ML/AI (PyTorch, TensorFlow)
 - Rich ecosystem of computer vision libraries
 - Fast prototyping and experimentation
 - Easy to recruit ML engineers
 
 ### Why Separate AI Workers?
+
 - **Performance**: AI inference doesn't block API requests
 - **Scaling**: Add more workers during peak times
 - **Resource Isolation**: GPU requirements isolated from API server
 - **Fault Tolerance**: API remains responsive if AI worker crashes
 
 ### Why Redis?
+
 - Fast in-memory operations
 - Pub/Sub for real-time notifications
 - Job queue capabilities (with reliability)
 - Caching layer for frequent queries
 
 ### Why Client-side Rendering?
+
 - **Bandwidth**: 50KB JSON vs 50MB video (1000x reduction)
 - **Cost**: Minimal data egress charges
 - **Speed**: No video re-encoding delay
@@ -270,17 +293,20 @@ Ascension/                      # Main repository (orchestration)
 ## Scalability Path
 
 ### Current (MVP)
+
 - Single VPS for API/DB
 - Single GPU machine for AI
 - Target: 1,000 active users
 
 ### Phase 2
+
 - API load balancer + 2 instances
 - DB read replicas
 - AI worker pool (3-5 instances)
 - Target: 10,000 active users
 
 ### Phase 3
+
 - Auto-scaling groups for API
 - Managed DB with multi-AZ
 - Kubernetes for AI workers

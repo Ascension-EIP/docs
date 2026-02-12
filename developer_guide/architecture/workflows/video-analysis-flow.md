@@ -1,3 +1,9 @@
+> **Last updated:** 12th February 2026  
+> **Version:** 1.0  
+> **Authors:** Gianni TUERO  
+> **Status:** Done
+> {.is-success}
+
 # Video Analysis Workflow
 
 ## Overview
@@ -141,6 +147,7 @@ sequenceDiagram
 **Purpose**: Verify user identity and establish session
 
 **Flow**:
+
 1. User enters credentials
 2. API validates against database (bcrypt password check)
 3. JWT token generated with claims:
@@ -156,6 +163,7 @@ sequenceDiagram
 4. Token stored securely on client (iOS Keychain / Android KeyStore)
 
 **Error Handling**:
+
 - Invalid credentials → 401 Unauthorized
 - Account locked → 423 Locked
 - Rate limit exceeded → 429 Too Many Requests
@@ -167,6 +175,7 @@ sequenceDiagram
 **Purpose**: Record climbing video locally
 
 **Implementation** (Flutter):
+
 ```dart
 import 'package:camera/camera.dart';
 
@@ -191,6 +200,7 @@ Future<File> recordVideo() async {
 ```
 
 **Constraints**:
+
 - Max duration: 60 seconds (configurable)
 - Max file size: 100MB
 - Formats: MP4 (H.264 codec)
@@ -203,6 +213,7 @@ Future<File> recordVideo() async {
 **Purpose**: Get secure upload URL without exposing credentials
 
 **API Implementation** (Rust):
+
 ```rust
 #[derive(Deserialize)]
 struct UploadRequest {
@@ -261,6 +272,7 @@ async fn request_upload(
 **Purpose**: Upload video to S3 without hitting API server
 
 **Client Implementation**:
+
 ```dart
 Future<void> uploadVideoToS3(File video, String presignedUrl) async {
   final bytes = await video.readAsBytes();
@@ -278,6 +290,7 @@ Future<void> uploadVideoToS3(File video, String presignedUrl) async {
 ```
 
 **Benefits**:
+
 - API server doesn't handle large files
 - Faster uploads (direct to S3)
 - Reduced bandwidth costs
@@ -290,6 +303,7 @@ Future<void> uploadVideoToS3(File video, String presignedUrl) async {
 **Purpose**: Queue analysis job for async processing
 
 **API Implementation**:
+
 ```rust
 async fn start_analysis(
     user: AuthenticatedUser,
@@ -342,6 +356,7 @@ async fn start_analysis(
 **Purpose**: Extract pose data, generate ghost, detect holds
 
 **Worker Implementation** (Python):
+
 ```python
 import cv2
 import mediapipe as mp
@@ -448,6 +463,7 @@ def generate_ghost_climber(poses: List[Dict], frames: List) -> List[Dict]:
 ```
 
 **Processing Time Breakdown**:
+
 - Frame extraction: ~5 seconds (30s video @ 30fps = 900 frames)
 - Pose estimation: ~20 seconds (900 frames × 22ms/frame)
 - Ghost generation: ~5 seconds (IK solving)
@@ -461,6 +477,7 @@ def generate_ghost_climber(poses: List[Dict], frames: List) -> List[Dict]:
 **Purpose**: Display analysis as overlay on original video
 
 **Flutter Implementation**:
+
 ```dart
 class AnalysisVideoPlayer extends StatefulWidget {
   final File videoFile;
@@ -617,6 +634,7 @@ try {
 ### Processing Failures
 
 **Worker** (Python):
+
 ```python
 try:
     result = process_video(video_path)
@@ -633,6 +651,7 @@ except Exception as e:
 ```
 
 **Client**:
+
 ```dart
 websocket.listen((event) {
   if (event['event'] == 'failed') {
@@ -658,6 +677,7 @@ websocket.listen((event) {
 ### 1. Video Compression
 
 Compress video before upload:
+
 ```dart
 import 'package:video_compress/video_compress.dart';
 
@@ -675,6 +695,7 @@ Future<File> compressVideo(File video) async {
 ### 2. Progressive Loading
 
 Stream JSON parsing for large result files:
+
 ```dart
 Stream<AnalysisData> parseAnalysisStream(String json) async* {
   final decoder = JsonDecoder();
@@ -708,6 +729,7 @@ Stream<AnalysisData> parseAnalysisStream(String json) async* {
 ### 3. Worker Optimization
 
 Use GPU batching:
+
 ```python
 def process_batch(frames: List[np.ndarray]) -> List[PoseResult]:
     """Process multiple frames in one GPU call"""
@@ -729,6 +751,7 @@ def process_batch(frames: List[np.ndarray]) -> List[PoseResult]:
 ### Logging
 
 **API**:
+
 ```rust
 info!(
     user_id = %user.id,
@@ -739,6 +762,7 @@ info!(
 ```
 
 **Worker**:
+
 ```python
 logger.info(
     "Processing started",

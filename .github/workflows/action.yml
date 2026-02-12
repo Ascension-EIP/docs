@@ -4,69 +4,65 @@ name: ascension-docs
 on: [push, pull_request]
 
 env:
-    GITHUB_ACTIONS: true
+  GITHUB_ACTIONS: true
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref_name }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
 ###############################################################################
-
-
 
 ############################ JOBS #############################################
 jobs:
+  ########################## COMMIT & BRANCH ##################################
+  check_commit_and_branch:
+    runs-on: ubuntu-latest
 
+    ######################## STEPS ############################################
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
 
-    ######################## COMMIT & BRANCH ##################################
-    check_commit_and_branch:
-        runs-on: ubuntu-latest
+      - name: Launch commit checker
+        run: |
+          COMMIT_NAME=$(git log --format="%s" -1)
+          .github/scripts/check_commit "$COMMIT_NAME"
 
-        #################### STEPS ############################################
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4.1.1
-              with:
-                fetch-depth: 0
+      - name: Launch branch checker
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+              BRANCH_NAME="${GITHUB_HEAD_REF}"
+          else
+              BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          fi
+          echo "Branch detected: $BRANCH_NAME"
+          .github/scripts/check_branch "$BRANCH_NAME"
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+  #############################################################################
 
-            - name: Launch commit checker
-              run: |
-                COMMIT_NAME=$(git log --format="%s" -1)
-                .github/scripts/check_commit "$COMMIT_NAME"
+  ########################## WIKI #############################################
+  update_wiki:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
 
-            - name: Launch branch checker
-              run: |
-                if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-                    BRANCH_NAME="${GITHUB_HEAD_REF}"
-                else
-                    BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-                fi
-                echo "Branch detected: $BRANCH_NAME"
-                .github/scripts/check_branch "$BRANCH_NAME"
-              env:
-                GITHUB_HEAD_REF: ${{ github.head_ref }}
-    ###########################################################################
+    ######################## STEPS ############################################
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+          ref: main
 
-    ######################## WIKI #############################################
-    update_wiki:
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/main'
+      - name: Generate wiki files
+        run: .github/scripts/generate_wiki
 
-        #################### STEPS ############################################
-        steps:
-            - name: Checkout main repo
-              uses: actions/checkout@v4.1.1
-              with:
-                  fetch-depth: 0
-                  ref: main
-
-            - name: Generate wiki files
-              run: .github/scripts/generate_wiki
-
-            - name: Install GitHub CLI
-              run: |
-                  sudo apt update
-                  sudo apt install -y gh
-            - name: Set up Wiki
-              uses: Andrew-Chen-Wang/github-wiki-action@v5.0.3
-    ###########################################################################
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
+      - name: Set up Wiki
+        uses: Andrew-Chen-Wang/github-wiki-action@v5.0.3
+  #############################################################################
 ###############################################################################

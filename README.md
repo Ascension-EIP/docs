@@ -8,9 +8,17 @@ editor: markdown
 dateCreated: 2026-02-11T14:56:22.797Z
 ---
 
+> **Last updated:** 12th February 2026  
+> **Version:** 1.1  
+> **Authors:** Gianni TUERO  
+> **Status:** Done
+> {.is-success}
+
 # Ascension - Documentation
 
 This project contains all the general documentation and resources of the project.
+
+---
 
 ## Quick Start 🚀
 
@@ -27,22 +35,27 @@ Get the project running locally in under 5 minutes.
 ### Installation
 
 1. **Clone the repository** (with submodules):
+
    ```bash
    git clone --recursive https://github.com/Ascension-EIP/Ascension.git
    cd Ascension
    ```
 
 2. **Initialize the environment**:
+
    ```bash
    just setup
    ```
-   *This initializes submodules and creates your `.env` file.*
+
+   _This initializes submodules and creates your `.env` file._
 
 3. **Start the services**:
+
    ```bash
    just start
    ```
-   *Starts Postgres, Redis, MinIO, API, and AI Worker.*
+
+   _Starts Postgres, Redis, MinIO, API, and AI Worker._
 
 4. **Verify**:
    - API: [http://localhost:8080/health](http://localhost:8080/health)
@@ -50,12 +63,12 @@ Get the project running locally in under 5 minutes.
 
 ### Common Commands
 
-| Command | Description |
-|---------|-------------|
-| `just setup` | Initialize submodules & environment |
-| `just start` | Start all services (detached) |
-| `just logs` | View live logs |
-| `just stop` | Stop all services |
+| Command             | Description                         |
+| ------------------- | ----------------------------------- |
+| `just setup`        | Initialize submodules & environment |
+| `just start`        | Start all services (detached)       |
+| `just logs`         | View live logs                      |
+| `just stop`         | Stop all services                   |
 | `just update-repos` | Pull latest code for all submodules |
 
 For detailed setup instructions, see the [Development Guide](developer_guide/architecture/deployment/development.md).
