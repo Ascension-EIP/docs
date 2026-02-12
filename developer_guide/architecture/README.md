@@ -127,6 +127,8 @@ Ascension/                      # Main repository (orchestration)
 │
 ├── mobile/                    # Submodule: Mobile App
 │   └── git@github.com:Ascension-EIP/mobile.git
+│       ├── README.md
+│       └── app/                       # Application (en développement)
 │
 ├── docs/                      # Submodule: Documentation
 │   └── git@github.com:Ascension-EIP/docs.git

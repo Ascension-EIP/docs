@@ -31,10 +31,8 @@ Ascension/ (Main Repository)
 │
 ├── mobile/                 # Git Submodule
 │   └── git@github.com:Ascension-EIP/mobile.git
-│       ├── pubspec.yaml
-│       ├── lib/
-│       ├── android/
-│       └── ios/
+│       ├── README.md
+│       └── app/                # Application (en développement)
 │
 ├── docs/                   # Git Submodule
 │   └── git@github.com:Ascension-EIP/docs.git
